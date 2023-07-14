@@ -6,6 +6,7 @@ import random
 import threading
 import time
 import unicornhat as unicorn
+from UHScroll import *
 
 # Define some variables
 
