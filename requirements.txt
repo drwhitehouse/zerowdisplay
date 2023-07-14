@@ -1,0 +1,7 @@
+--prefer-binary
+
+flask
+flask-restful
+requests
+unicornhat
+bitarray
