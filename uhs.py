@@ -23,32 +23,16 @@ def clear():
     unicorn.set_all(0, 0, 0)
     unicorn.show()
 
-def activity(width, height, red, green, blue):
-    """ Activity """
-    myrot = getrot(width, height)
-    myrandom = random.randint(0, 1)
+def status(my_x, red, green, blue):
+    """ new style status """
     mytime = 30
-    unicorn.rotation(myrot)
-    for my_x in range(width):
-        for my_y in range(height):
-            unicorn.set_pixel(my_x, my_y, red, green, blue)
+    for my_y in range(height):
+        unicorn.set_pixel(my_x, my_y, red, green, blue)
         unicorn.show()
-        if myrandom > 0:
-            for myother_x in range(width):
-                for myother_y in range(height):
-                    unicorn.set_pixel(myother_x, myother_y, 0, 0, 0)
-        time.sleep(mytime / width)
-    unicorn.set_all(0, 0, 0)
+        time.sleep(mytime / height)
+    for my_y in range(height):
+        unicorn.set_pixel(my_x, my_y, 0, 0, 0)
     unicorn.show()
-
-def mycolour(red, green, blue):
-    """ make mycolour """
-    for _ in range(5):
-        unicorn.set_all(red, green, blue)
-        unicorn.show()
-        time.sleep(1)
-        clear()
-        time.sleep(1)
 
 def get_address_fam(address):
     addr = ipaddress.ip_address(address)
@@ -87,7 +71,7 @@ class Activity(Resource):
             if fam == 4:
                 REQ = split_address(address)
                 red, green, blue = colourfromip(REQ[0], REQ[1], REQ[2], REQ[3])
-                s = threading.Thread(activity(width, height, red, green, blue))
+                s = threading.Thread(status(7, red, green, blue))
 
 class Attack(Resource):
     """ attacking """
@@ -96,7 +80,7 @@ class Attack(Resource):
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            s = threading.Thread(mycolour(125,75,75))
+            s = threading.Thread(status(6,125,75,75))
 
 class Challenge(Resource):
     """ challenge """
@@ -105,7 +89,16 @@ class Challenge(Resource):
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            s = threading.Thread(mycolour(75,125,75))
+            s = threading.Thread(status(5,75,255,75))
+
+class Slay(Resource):
+    """ slay """
+    def get(self):
+        hour = datetime.datetime.today().hour
+        if hour < 6:
+            s = threading.Thread(clear())
+        else:
+            s = threading.Thread(status(4,75,75,255))
 
 class Fight(Resource):
     """ fighting """
@@ -114,12 +107,25 @@ class Fight(Resource):
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            s = threading.Thread(mycolour(255,0,0))
+            s = threading.Thread(status(3,255,75,255))
+
+class Slugs(Resource):
+    """ Slugs """
+    def get(self,red,green,blue):
+        s = threading.Thread(status(0,red,green,blue))
+
+class Test(Resource):
+    """ testing """
+    def get(self):
+        s = threading.Thread(status(0,255,0,0))
 
 api.add_resource(Activity, "/ac")
 api.add_resource(Attack, "/at")
 api.add_resource(Challenge, "/ch")
+api.add_resource(Slay, "/sl")
 api.add_resource(Fight, "/ft")
+api.add_resource(Slugs, "/slug/<int:red>/<int:green>/<int:blue>")
+api.add_resource(Test, "/test")
 
 if __name__ == "__main__":
     app.run(host="10.15.0.11", debug=True)
