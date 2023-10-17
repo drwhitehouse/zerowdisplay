@@ -6,12 +6,13 @@ import random
 import threading
 import time
 import unicornhat as unicorn
-import ipaddress
+import numpy as np
 
 # Define some variables
 
 app = Flask(__name__)
 api = Api(app)
+sem = threading.Semaphore()
 
 unicorn.rotation(0)
 unicorn.brightness(0.5)
@@ -25,30 +26,16 @@ def clear():
 
 def status(my_x, my_time, red, green, blue):
     """ new style status """
+    sem.acquire()
+    myArray = gethat()
+    myArray = shifthat(myArray)
+    sethat(myArray)
     for my_y in range(height):
         unicorn.set_pixel(my_x, my_y, red, green, blue)
         unicorn.show()
         time.sleep(my_time / height)
-    for my_y in range(height):
-        unicorn.set_pixel(my_x, my_y, 0, 0, 0)
     unicorn.show()
-
-def get_address_fam(address):
-    addr = ipaddress.ip_address(address)
-    version = addr.version
-    return version
-
-def split_address(address):
-    REQ=[]
-    for value in address.split("."):
-        REQ.append(int(value))
-    return REQ
-
-def colourfromip(red, green, blue, four):
-    red = red ^ four + 100
-    blue = blue ^ four + 100
-    green = green ^ four + 100
-    return red, green, blue
+    sem.release()
 
 def getrot(width, height):
     """ Get rotation """
@@ -58,6 +45,45 @@ def getrot(width, height):
         myrot = random.randrange(0, 270, 180)
     return myrot
 
+def gethat():
+    """ Get Hat State """
+    myArray = np.zeros((3,8,8), np.uint8)
+    for x in range (width):
+        for y in range (height):
+            r, g, b = getpixel(x,y)
+            myArray[0, x, y] = r
+            myArray[1, x, y] = g
+            myArray[2, x, y] = b
+    return myArray
+
+def sethat(myArray):
+    """ Set Hat State """
+    for x in range (width):
+        for y in range (height):
+            r = int(myArray[0,x,y])
+            g = int(myArray[1,x,y])
+            b = int(myArray[2,x,y])
+            unicorn.set_pixel(x, y, r, g, b)
+    unicorn.show()
+
+def shifthat(myArray):
+    """ shift hat one column right """
+    for x in range (1,width):
+        for y in range (height):
+            myArray[0,x - 1,y] = myArray[0,x,y]
+            myArray[1,x - 1,y] = myArray[1,x,y]
+            myArray[2,x - 1,y] = myArray[2,x,y]
+    for y in range (height):
+        myArray[0,width -1,y] = 0
+        myArray[1,width -1,y] = 0
+        myArray[2,width -1,y] = 0
+    return myArray
+
+def getpixel(x, y):
+    """ get pixel colour """
+    r, g, b = unicorn.get_pixel(x, y)
+    return r, g, b
+
 class Activity(Resource):
     """ activity """
     def get(self):
@@ -65,12 +91,7 @@ class Activity(Resource):
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            address = request.remote_addr
-            fam = get_address_fam(address)
-            if fam == 4:
-                REQ = split_address(address)
-                red, green, blue = colourfromip(REQ[0], REQ[1], REQ[2], REQ[3])
-                s = threading.Thread(status(7, 30, red, green, blue))
+            s = threading.Thread(status(width - 1, 30, 0, 0, 0))
 
 class Attack(Resource):
     """ attacking """
@@ -79,7 +100,7 @@ class Attack(Resource):
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            s = threading.Thread(status(6,60,125,75,75))
+            s = threading.Thread(status(width - 1,30,125,75,75))
 
 class Challenge(Resource):
     """ challenge """
@@ -88,7 +109,7 @@ class Challenge(Resource):
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            s = threading.Thread(status(5,90,75,255,75))
+            s = threading.Thread(status(width - 1,30,75,255,75))
 
 class Slay(Resource):
     """ slay """
@@ -97,7 +118,7 @@ class Slay(Resource):
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            s = threading.Thread(status(4,120,65,85,255))
+            s = threading.Thread(status(width - 1,30,65,85,255))
 
 class Fight(Resource):
     """ fighting """
@@ -106,7 +127,7 @@ class Fight(Resource):
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            s = threading.Thread(status(3,90,255,75,255))
+            s = threading.Thread(status(width - 1,30,255,75,255))
 
 class Notice(Resource):
     """ noticing """
@@ -115,17 +136,22 @@ class Notice(Resource):
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            s = threading.Thread(status(2,30,225,175,75))
+            s = threading.Thread(status(width - 1,30,225,175,75))
 
 class Slugs(Resource):
     """ Slugs """
     def get(self,red,green,blue):
-        s = threading.Thread(status(0,150,red,green,blue))
-
-class Test(Resource):
-    """ testing """
-    def get(self):
-        s = threading.Thread(status(0,15,255,0,0))
+        sem.acquire()
+        myArray = gethat()
+        for _ in range(0, 15):
+            unicorn.set_all(red, green, blue)
+            unicorn.show()
+            time.sleep(0.5)
+            clear()
+            unicorn.show()
+            time.sleep(0.5)
+        sethat(myArray)
+        sem.release()
 
 api.add_resource(Activity, "/ac")
 api.add_resource(Notice, "/no")
@@ -134,7 +160,6 @@ api.add_resource(Challenge, "/ch")
 api.add_resource(Slay, "/sl")
 api.add_resource(Fight, "/ft")
 api.add_resource(Slugs, "/slug/<int:red>/<int:green>/<int:blue>")
-api.add_resource(Test, "/test")
 
 if __name__ == "__main__":
     app.run(host="10.15.0.11", debug=True)
