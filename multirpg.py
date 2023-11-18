@@ -125,7 +125,7 @@ def gamble(winner, loser):
 
 def fight(my_player, my_opponent):
     """ have a ruck """
-    display_activity("","", "ft")
+    display_activity("","")
     if int(my_player['level']) > 89:
         weechat.prnt(SCRIPTBUFFER, "%sAttempting to load potion..." % weechat.color("red, black"))
         weechat.prnt(SCRIPTBUFFER, "")
@@ -192,20 +192,9 @@ def show_mrpgcounters(data, item, window):
     """ show counters for mrpgbar """
     return "".join(MY_CONTENT)
 
-def display_activity(data, timer, mode):
+def display_activity(data, timer):
     """ flash the hat """
-    if mode == "ac":
-        weechat.hook_process("url:http://10.15.0.11:5000/ac",60 * 1000, "display_cb", "")
-    if mode == "no":
-        weechat.hook_process("url:http://10.15.0.11:5000/no",60 * 1000, "display_cb", "")
-    if mode == "at":
-        weechat.hook_process("url:http://10.15.0.11:5000/at",60 * 1000, "display_cb", "")
-    if mode == "ch":
-        weechat.hook_process("url:http://10.15.0.11:5000/ch",60 * 1000, "display_cb", "")
-    if mode == "sl":
-        weechat.hook_process("url:http://10.15.0.11:5000/sl",60 * 1000, "display_cb", "")
-    if mode == "ft":
-        weechat.hook_process("url:http://10.15.0.11:5000/ft",60 * 1000, "display_cb", "")
+    weechat.hook_process("url:http://10.15.0.11:5000/flash",60 * 1000, "display_cb", "")
     return weechat.WEECHAT_RC_OK
 
 def display_cb(data, command, rtncd, out, err):
@@ -225,7 +214,7 @@ def rawplayers3_cb(data, command, rtncd, out, err):
     if out != "":
         RAW_PLAYERS.append(out)
         if int(rtncd) >= 0:
-            display_activity("","", "ac")
+            display_activity("","")
             my_player, all_players = get_stats("".join(RAW_PLAYERS))
             if int(my_player['online']) == 1:
                 check_alignment(my_player)
@@ -394,14 +383,14 @@ def takeaction(my_player):
             weechat.prnt(SCRIPTBUFFER, "")
             weechat.command(BOTBUFFER, "align priest")
             weechat.command(BOTBUFFER, "attack %s" % (my_creep))
-            display_activity("","", "at")
+            display_activity("","")
     if int(my_player['level']) > 34:
         if time_now > int(my_player['challengetm']):
             weechat.prnt(SCRIPTBUFFER, "%sChallenging..." % weechat.color("red, black"))
             weechat.prnt(SCRIPTBUFFER, "")
             weechat.command(BOTBUFFER, "align priest")
             weechat.command(BOTBUFFER, "challenge")
-            display_activity("","", "ch")
+            display_activity("","")
     if int(my_player['level']) > 39:
         if time_now > int(my_player['slaytm']):
             my_monster = get_monster(int(my_player["sum"]))
@@ -409,7 +398,7 @@ def takeaction(my_player):
             weechat.prnt(SCRIPTBUFFER, "")
             weechat.command(BOTBUFFER, "align priest")
             weechat.command(BOTBUFFER, "slay %s" % (my_monster))
-            display_activity("","", "sl")
+            display_activity("","")
 
 def bestbet(all_players):
     """ get bet """
@@ -490,7 +479,7 @@ def msgparser(data, bufferp, tm, tags, display, is_hilight, prefix, msg):
     if MYNICK in msg:
         weechat.prnt(SCRIPTBUFFER, msg)
         weechat.prnt(SCRIPTBUFFER, "")
-        display_activity("","", "no")
+        display_activity("","")
 
     # return
     return weechat.WEECHAT_RC_OK

@@ -37,6 +37,18 @@ def status(my_x, my_time, red, green, blue):
     unicorn.show()
     sem.release()
 
+def flash(red, green, blue):
+    """ new style flash """
+    myArray = gethat()
+    for _ in range(0, 15):
+        unicorn.set_all(red, green, blue)
+        unicorn.show()
+        time.sleep(0.5)
+        clear()
+        unicorn.show()
+        time.sleep(0.5)
+    sethat(myArray)
+
 def getrot(width, height):
     """ Get rotation """
     if width == height:
@@ -86,80 +98,22 @@ def getpixel(x, y):
 
 class Activity(Resource):
     """ activity """
-    def get(self):
+    def get(self, red, green, blue):
         hour = datetime.datetime.today().hour
         if hour < 6:
             s = threading.Thread(clear())
         else:
-            s = threading.Thread(status(width - 1, 30, 0, 0, 0))
+            s = threading.Thread(status(width - 1, 30, red, green, blue))
 
-class Attack(Resource):
-    """ attacking """
+class Flash(Resource):
+    """ Flash """
     def get(self):
-        hour = datetime.datetime.today().hour
-        if hour < 6:
-            s = threading.Thread(clear())
-        else:
-            s = threading.Thread(status(width - 1,30,125,75,75))
-
-class Challenge(Resource):
-    """ challenge """
-    def get(self):
-        hour = datetime.datetime.today().hour
-        if hour < 6:
-            s = threading.Thread(clear())
-        else:
-            s = threading.Thread(status(width - 1,30,75,255,75))
-
-class Slay(Resource):
-    """ slay """
-    def get(self):
-        hour = datetime.datetime.today().hour
-        if hour < 6:
-            s = threading.Thread(clear())
-        else:
-            s = threading.Thread(status(width - 1,30,65,85,255))
-
-class Fight(Resource):
-    """ fighting """
-    def get(self):
-        hour = datetime.datetime.today().hour
-        if hour < 6:
-            s = threading.Thread(clear())
-        else:
-            s = threading.Thread(status(width - 1,30,255,75,255))
-
-class Notice(Resource):
-    """ noticing """
-    def get(self):
-        hour = datetime.datetime.today().hour
-        if hour < 6:
-            s = threading.Thread(clear())
-        else:
-            s = threading.Thread(status(width - 1,30,225,175,75))
-
-class Slugs(Resource):
-    """ Slugs """
-    def get(self,red,green,blue):
         sem.acquire()
-        myArray = gethat()
-        for _ in range(0, 15):
-            unicorn.set_all(red, green, blue)
-            unicorn.show()
-            time.sleep(0.5)
-            clear()
-            unicorn.show()
-            time.sleep(0.5)
-        sethat(myArray)
+        flash(255,255,255)
         sem.release()
 
-api.add_resource(Activity, "/ac")
-api.add_resource(Notice, "/no")
-api.add_resource(Attack, "/at")
-api.add_resource(Challenge, "/ch")
-api.add_resource(Slay, "/sl")
-api.add_resource(Fight, "/ft")
-api.add_resource(Slugs, "/slug/<int:red>/<int:green>/<int:blue>")
+api.add_resource(Activity, "/ac/<int:red>/<int:green>/<int:blue>")
+api.add_resource(Flash, "/flash")
 
 if __name__ == "__main__":
     app.run(host="10.15.0.11", debug=True)
