@@ -39,6 +39,7 @@ def status(my_x, my_time, red, green, blue):
 
 def flash(red, green, blue):
     """ new style flash """
+    sem.acquire()
     myArray = gethat()
     for _ in range(0, 15):
         unicorn.set_all(red, green, blue)
@@ -48,6 +49,7 @@ def flash(red, green, blue):
         unicorn.show()
         time.sleep(0.5)
     sethat(myArray)
+    sem.release()
 
 def getrot(width, height):
     """ Get rotation """
@@ -96,21 +98,27 @@ def getpixel(x, y):
     r, g, b = unicorn.get_pixel(x, y)
     return r, g, b
 
+def getcolour():
+    """ gets a random colour """
+    red = random.randint(0, 255)
+    green = random.randint(0, 255)
+    blue = random.randint(0, 255)
+    return[red, green, blue]
+
 class Activity(Resource):
     """ activity """
     def get(self, red, green, blue):
         hour = datetime.datetime.today().hour
         if hour < 6:
-            s = threading.Thread(clear())
+            status(width - 1, 30, 0, 0, 0)
         else:
-            s = threading.Thread(status(width - 1, 30, red, green, blue))
+            status(width - 1, 30, red, green, blue)
 
 class Flash(Resource):
     """ Flash """
     def get(self):
-        sem.acquire()
-        flash(255,255,255)
-        sem.release()
+        red, green, blue = getcolour()
+        flash(red, green, blue)
 
 api.add_resource(Activity, "/ac/<int:red>/<int:green>/<int:blue>")
 api.add_resource(Flash, "/flash")

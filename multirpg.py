@@ -125,7 +125,6 @@ def gamble(winner, loser):
 
 def fight(my_player, my_opponent):
     """ have a ruck """
-    display_activity("","")
     if int(my_player['level']) > 89:
         weechat.prnt(SCRIPTBUFFER, "%sAttempting to load potion..." % weechat.color("red, black"))
         weechat.prnt(SCRIPTBUFFER, "")
@@ -214,7 +213,6 @@ def rawplayers3_cb(data, command, rtncd, out, err):
     if out != "":
         RAW_PLAYERS.append(out)
         if int(rtncd) >= 0:
-            display_activity("","")
             my_player, all_players = get_stats("".join(RAW_PLAYERS))
             if int(my_player['online']) == 1:
                 check_alignment(my_player)
@@ -383,14 +381,12 @@ def takeaction(my_player):
             weechat.prnt(SCRIPTBUFFER, "")
             weechat.command(BOTBUFFER, "align priest")
             weechat.command(BOTBUFFER, "attack %s" % (my_creep))
-            display_activity("","")
     if int(my_player['level']) > 34:
         if time_now > int(my_player['challengetm']):
             weechat.prnt(SCRIPTBUFFER, "%sChallenging..." % weechat.color("red, black"))
             weechat.prnt(SCRIPTBUFFER, "")
             weechat.command(BOTBUFFER, "align priest")
             weechat.command(BOTBUFFER, "challenge")
-            display_activity("","")
     if int(my_player['level']) > 39:
         if time_now > int(my_player['slaytm']):
             my_monster = get_monster(int(my_player["sum"]))
@@ -398,7 +394,6 @@ def takeaction(my_player):
             weechat.prnt(SCRIPTBUFFER, "")
             weechat.command(BOTBUFFER, "align priest")
             weechat.command(BOTBUFFER, "slay %s" % (my_monster))
-            display_activity("","")
 
 def bestbet(all_players):
     """ get bet """
