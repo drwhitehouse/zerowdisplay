@@ -1,5 +1,6 @@
-# weechat-multirpg-display
-UnicornHat Display for Multirpg Script For Weechat
+zerowdisplay
+
+Messing with UnicornHat
 
 Usage:
 
