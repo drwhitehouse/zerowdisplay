@@ -4,11 +4,13 @@
 
 import psutil
 
-#print(f"CPU utilization: {psutil.cpu_percent()}%")
-#print(f"Memory utilization: {psutil.virtual_memory().percent}%")
 #print(f"CPU: {psutil.cpu_times()}")
 #print(f"CPU: {psutil.cpu_percent(interval=1, percpu=True)}")
 #print(f"CPU: {psutil.cpu_percent(interval=1)}")
+#print(f"LOAD: {psutil.getloadavg()}")
+#print(f"Memory utilization: {psutil.virtual_memory().percent}%")
+
+print(f"LOAD: {[x / psutil.cpu_count() * 100 for x in psutil.getloadavg()]}")
 
 VERTICAL=4
 HORIZONTAL=8

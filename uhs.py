@@ -40,13 +40,15 @@ def flash(red, green, blue):
     """ new style flash """
     sem.acquire()
     myArray = gethat()
+    clear()
+    time.sleep(1)
     for _ in range(0, 15):
         unicorn.set_all(red, green, blue)
         unicorn.show()
         time.sleep(0.5)
         clear()
-        unicorn.show()
         time.sleep(0.5)
+    time.sleep(1)
     sethat(myArray)
     sem.release()
 
@@ -92,6 +94,12 @@ def shifthat(myArray):
         myArray[2,width -1,y] = 0
     return myArray
 
+def getcoords(width, height):
+    """ Gets random coords """
+    xcoord = random.randint(0, width - 1)
+    ycoord = random.randint(0, height - 1)
+    return [xcoord, ycoord]
+
 def getpixel(x, y):
     """ get pixel colour """
     r, g, b = unicorn.get_pixel(x, y)
@@ -104,10 +112,31 @@ def getcolour():
     blue = random.randint(0, 255)
     return[red, green, blue]
 
+def light_points(red, green, blue):
+    """ pick random coords and light them """
+    sem.acquire()
+    myArray = gethat()
+    clear()
+    time.sleep(1)
+    for _ in range(0, 30):
+        my_x, my_y = getcoords(width, height)
+        unicorn.set_pixel(my_x, my_y, red, green, blue)
+        unicorn.show()
+        time.sleep(0.25)
+    clear()
+    time.sleep(1)
+    sethat(myArray)
+    sem.release()
+
 class Activity(Resource):
     """ activity """
     def get(self, red, green, blue):
         status(width - 1, 30, red, green, blue)
+
+class Points(Resource):
+    """ Points """
+    def get(self, red, green, blue):
+        light_points(red, green, blue)
 
 class Flash(Resource):
     """ Flash """
@@ -121,6 +150,7 @@ class Bedtime(Resource):
         clear()
 
 api.add_resource(Activity, "/ac/<int:red>/<int:green>/<int:blue>")
+api.add_resource(Points, "/pt/<int:red>/<int:green>/<int:blue>")
 api.add_resource(Flash, "/flash")
 api.add_resource(Bedtime, "/bedtime")
 
