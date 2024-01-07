@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask, request
 from flask_restful import Api, Resource
-import datetime
 import random
 import threading
 import time
@@ -108,11 +107,7 @@ def getcolour():
 class Activity(Resource):
     """ activity """
     def get(self, red, green, blue):
-        hour = datetime.datetime.today().hour
-        if hour < 6:
-            status(width - 1, 30, 0, 0, 0)
-        else:
-            status(width - 1, 30, red, green, blue)
+        status(width - 1, 30, red, green, blue)
 
 class Flash(Resource):
     """ Flash """
@@ -120,8 +115,14 @@ class Flash(Resource):
         red, green, blue = getcolour()
         flash(red, green, blue)
 
+class Bedtime(Resource):
+    """ clear hat """
+    def get(self):
+        clear()
+
 api.add_resource(Activity, "/ac/<int:red>/<int:green>/<int:blue>")
 api.add_resource(Flash, "/flash")
+api.add_resource(Bedtime, "/bedtime")
 
 if __name__ == "__main__":
     app.run(host="10.15.0.11", debug=True)
