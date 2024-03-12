@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from flask import Flask, request
 from flask_restful import Api, Resource
+import uhs_utils
 import random
 import threading
 import time
@@ -107,13 +108,6 @@ def getpixel(x, y):
     r, g, b = unicorn.get_pixel(x, y)
     return r, g, b
 
-def getcolour():
-    """ gets a random colour """
-    red = random.randint(0, 255)
-    green = random.randint(0, 255)
-    blue = random.randint(0, 255)
-    return[red, green, blue]
-
 def light_points(red, green, blue):
     """ pick random coords and light them """
     sem.acquire()
@@ -158,7 +152,7 @@ class Points(Resource):
 class Flash(Resource):
     """ Flash """
     def get(self):
-        red, green, blue = getcolour()
+        red, green, blue = uhs_utils.getcolour()
         flash(red, green, blue)
 
 class Bedtime(Resource):

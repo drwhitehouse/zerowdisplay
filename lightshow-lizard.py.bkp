@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+
+""" raspberry pi zero w unicorn hat lightshow trigger """
+
+import uhs_utils
+import argparse
+import requests
+
+def request_pt(red, green, blue):
+    """ request pt """
+    my_url = url + "pt/" + str(red) + "/" + str(green) + "/" + str(blue)
+    print(my_url)
+    requests.get(my_url)
+
+# http://chowfaan.hot.dim-sum.home:5000/pt/$RED/$GREEN/$BLUE
+
+url = 'http://chowfaan.hot.dim-sum.home:5000/'
+
+parser = argparse.ArgumentParser(description='Lightshow Lizard')
+parser.add_argument('--pt', action='store_true', dest='pt', help='trigger uhs Points')
+parser.add_argument('--bed', action='store_true', dest='bed', help='trigger uhs Bed')
+parser.add_argument('--red', type=int)
+parser.add_argument('--green', type=int)
+parser.add_argument('--blue', type=int)
+args = parser.parse_args()
+
+my_red, my_green, my_blue = uhs_utils.getcolour()
+
+if args.pt:
+    request_pt(my_red, my_green, my_blue)
+else:
+    print("Nothing to do...")
