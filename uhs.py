@@ -25,9 +25,7 @@ def clear():
 
 def status(my_x, my_time, load):
     """ new style status """
-    red = load
-    blue = 150
-    green = 175
+    red, green, blue = load_colours(load)
     sem.acquire()
     myArray = gethat()
     myArray = shifthat(myArray)
@@ -122,15 +120,30 @@ def light_points(red, green, blue):
     myArray = gethat()
     clear()
     time.sleep(1)
-    for _ in range(0, 30):
+    for _ in range(0, 60):
         my_x, my_y = getcoords(width, height)
-        unicorn.set_pixel(my_x, my_y, red, green, blue)
+        chk_r, chk_g, chk_b = getpixel(my_x, my_y)
+        if not chk_r + chk_g + chk_b == 0:
+            unicorn.set_pixel(my_x, my_y, 0, 0, 0)
+        else:
+            unicorn.set_pixel(my_x, my_y, red, green, blue)
         unicorn.show()
-        time.sleep(0.25)
+        time.sleep(1)
     clear()
     time.sleep(1)
     sethat(myArray)
     sem.release()
+
+def display_percentage(percentage, display):
+    """work out how many leds to light"""
+    return int(float(percentage) * float(display) / 100)
+
+def load_colours(load):
+    """ get colour by load """
+    red = 75 + load
+    green = 75 + load
+    blue = 75 + load
+    return (red, green, blue)
 
 class Activity(Resource):
     """ activity """
@@ -152,10 +165,6 @@ class Bedtime(Resource):
     """ clear hat """
     def get(self):
         clear()
-
-def display_percentage(percentage, display):
-    """work out how many leds to light"""
-    return int(float(percentage) * float(display) / 100)
 
 api.add_resource(Activity, "/ac/<int:load>")
 api.add_resource(Points, "/pt/<int:red>/<int:green>/<int:blue>")
