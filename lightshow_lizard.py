@@ -24,7 +24,7 @@ def request_bed():
     print(my_url)
     requests.get(my_url, timeout=120)
 
-def main(red, green, blue):
+def main():
     """ start here """
     if args.pt:
         this_red = args.red
@@ -52,4 +52,4 @@ if __name__ == "__main__":
     parser.add_argument('--green', type=int, default=my_green)
     parser.add_argument('--blue', type=int, default=my_blue)
     args = parser.parse_args()
-    main(my_red, my_green, my_blue)
+    main()
