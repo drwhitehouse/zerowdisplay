@@ -151,8 +151,7 @@ class Points(Resource):
 
 class Flash(Resource):
     """ Flash """
-    def get(self):
-        red, green, blue = uhs_utils.getcolour()
+    def get(self, red, green, blue):
         flash(red, green, blue)
 
 class Bedtime(Resource):
@@ -162,7 +161,7 @@ class Bedtime(Resource):
 
 api.add_resource(Activity, "/ac/<int:load>")
 api.add_resource(Points, "/pt/<int:red>/<int:green>/<int:blue>")
-api.add_resource(Flash, "/flash")
+api.add_resource(Flash, "/flash/<int:red>/<int:green>/<int:blue>")
 api.add_resource(Bedtime, "/bedtime")
 
 if __name__ == "__main__":
