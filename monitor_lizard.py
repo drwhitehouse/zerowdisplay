@@ -4,12 +4,11 @@
 
 import psutil
 import requests
-url = 'http://chowfaan.hot.dim-sum.home:5000/ac/'
 
 def send_loadavg(url, load):
     """ send the loadavg """
     my_url = url + str(load)
-    requests.get(my_url)
+    requests.get(my_url, timeout=60)
 
 def get_loadavg():
     """get the 5 minute loadavg as percentage"""
@@ -25,7 +24,9 @@ def main(url):
     my_cpu = sample_cpu()
     my_avg = int(get_loadavg())
     send_loadavg(url, my_avg)
-    print(f"LOADAVG 5min : {my_avg} %")
+    print(f"CPU UTILISATION : {my_cpu} %")
+    print(f"LOADAVG 5min    : {my_avg} %")
 
 if __name__ == "__main__":
-    main(url)
+    URL = 'http://chowfaan.hot.dim-sum.home:5000/ac/'
+    main(URL)
